@@ -41,7 +41,7 @@ def constructKB():
 
             negative_possibility = random.choice([0, 1])
             if negative_possibility == 1:
-                lit += "'"
+                lit = "-" + lit
 
             sent.append(lit)
 
@@ -52,8 +52,11 @@ def constructKB():
     for s in KB:
         print(*s)
 
-    f = open("demofile3.txt", "w")
-    f.write("Number of Logical Variables: " + str(var_num) + " | Number of Sentences: " + str(sent_num) + " | Max Literals in each Sentence: " + str(lit_num))
+    f = open("kb.txt", "w")
+    f.write("Number of Logical Variables: " + str(var_num) + " | Number of Sentences: " + str(sent_num) + " | Max Literals in each Sentence: " + str(lit_num) + "\n")
+    for s in KB:
+        s = str(s).replace("[", "").replace("'", "").replace("]", "").replace(",", "").replace(" ", " ∨ ")
+        f.write(s + "\n")
     f.close()
 
 
