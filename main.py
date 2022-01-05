@@ -11,11 +11,13 @@ def constructKB():
     while (var_num < 1) or (var_num > 26):
         var_num = input("Try again! Enter a number between 1 and 26: ")
         var_num = int(var_num)
+
     lit_num = input("Enter the number of Literals: ")
     lit_num = int(lit_num)
     while (lit_num < 1) or (lit_num > var_num):
         lit_num = input("Try again! Enter a number greater that 0: ")
         lit_num = int(lit_num)
+
     sent_num = input("Enter the number of Sentences: ")
     sent_num = int(sent_num)
     while sent_num < 1:
@@ -49,6 +51,10 @@ def constructKB():
 
     for s in KB:
         print(*s)
+
+    f = open("demofile3.txt", "w")
+    f.write("Number of Logical Variables: " + str(var_num) + " | Number of Sentences: " + str(sent_num) + " | Max Literals in each Sentence: " + str(lit_num))
+    f.close()
 
 
 
