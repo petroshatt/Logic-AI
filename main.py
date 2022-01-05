@@ -4,7 +4,7 @@ import random
 KB = []
 
 
-def constrKB():
+def constructKB():
 
     var_num = input("Enter the number of Logical Variables (1-26): ")
     var_num = int(var_num)
@@ -57,4 +57,4 @@ def constrKB():
 
 
 if __name__ == '__main__':
-    constrKB()
+    constructKB()
