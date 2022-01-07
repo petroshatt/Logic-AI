@@ -1,5 +1,6 @@
 #Logic AI - Petros Chatzitoulousis
 import random
+import copy
 
 
 def constructKB():
@@ -57,46 +58,49 @@ def constructKB():
     return kb, var_used
 
 
-def GSAT(KB, var_used):#, maxTries, maxFlips):
+def GSAT(KB, var_used, maxTries, maxFlips):
 
     var_values = {}
 
-    # for i in range(maxTries):
+    for i in range(maxTries):
 
-    for lit in var_used:
-        var_values[lit] = random.choice([True,False])
+        for lit in var_used:
+            var_values[lit] = random.choice([True,False])
 
-    print(var_values)
-    print(KB)
+        # print(var_values)
+        # print(KB)
 
-    current_solution = solve(KB, var_values)
-    print(current_solution)
-    current_cost = 0
-    for i in current_solution:
-        if not i:
-            current_cost+=1
-    #current_cost = sum(not(current_solution))
-    #current_cost = sum(1 for v in var_values.values() if v == False) #counts the Falses
+        current_solution = solve(KB, var_values)
+        # print("original: ", current_solution)
+        current_cost = len(current_solution) - sum(current_solution) #counts Falses
 
-    # for j in range(maxFlips):
+        for j in range(maxFlips):
 
-    temp_var_values = var_values
+            if all(current_solution):   #na ginei satisfies
+                return var_values
+
+            else:
+                key_to_change = findKeyToChange(KB, var_values)
+                var_values[key_to_change] = not(var_values[key_to_change])
+                #print(var_values)
+
+
+def findKeyToChange(KB, var_values):
+
+    temp_var_values = copy.deepcopy(var_values)
     new_costs = {}
 
-    if all(current_solution):   #na ginei satisfies
-        return var_values
+    for key in var_values:
+        temp_var_values[key] = not(temp_var_values[key])
+        temp_solution = solve(KB, temp_var_values)
+        #print(temp_solution)
+        new_costs[key] = len(temp_solution) - sum(temp_solution) #counts Falses
+        temp_var_values = copy.deepcopy(var_values)
+    # print(new_costs)
 
-    else:
-        for key in var_values:
-            temp_var_values[key] = not(temp_var_values[key])
-            temp_solution = solve(KB, temp_var_values)
-            print(temp_solution)
-            new_costs[key] = 0
-            for i in temp_solution:
-                if not i:
-                    new_costs[key] += 1
-            temp_var_values = var_values
-        print(new_costs)
+    key_to_change = random.choice([k for k,v in new_costs.items() if v == min(new_costs.values())]) #na ginei random
+    #print(key_to_change)
+    return(key_to_change)
 
 
 def solve(KB, var_values):
@@ -125,15 +129,11 @@ def solve(KB, var_values):
     return(solution)
 
 
-
-
-
-
 if __name__ == '__main__':
 
     KB, var_used = constructKB()
 
-    GSAT(KB, var_used)
+    GSAT(KB, var_used, 100, 100)
 
     # for s in KB:
     #     print(s)
