@@ -57,7 +57,7 @@ def constructKB():
     return kb, var_used
 
 
-def GSAT(KB, var_used):
+def GSAT(KB, var_used):#, maxTries, maxFlips):
 
     var_values = {}
 
@@ -66,16 +66,37 @@ def GSAT(KB, var_used):
     for lit in var_used:
         var_values[lit] = random.choice([True,False])
 
-    solve(KB, var_values)
+    print(var_values)
+    print(KB)
 
-        # current_cost = sum(1 for v in var_values.values() if v == False) #counts the Falses
-        #
-        # for j in range(maxFlips):
-        #
-        #     if satisfies(var_values, KB):
-        #         return var_values
-        #
-        #     else
+    current_solution = solve(KB, var_values)
+    print(current_solution)
+    current_cost = 0
+    for i in current_solution:
+        if not i:
+            current_cost+=1
+    #current_cost = sum(not(current_solution))
+    #current_cost = sum(1 for v in var_values.values() if v == False) #counts the Falses
+
+    # for j in range(maxFlips):
+
+    temp_var_values = var_values
+    new_costs = {}
+
+    if all(current_solution):   #na ginei satisfies
+        return var_values
+
+    else:
+        for key in var_values:
+            temp_var_values[key] = not(temp_var_values[key])
+            temp_solution = solve(KB, temp_var_values)
+            print(temp_solution)
+            new_costs[key] = 0
+            for i in temp_solution:
+                if not i:
+                    new_costs[key] += 1
+            temp_var_values = var_values
+        print(new_costs)
 
 
 def solve(KB, var_values):
