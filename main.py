@@ -48,7 +48,9 @@ def constructKB():
             kb.append(sent)
             sent_counter += 1
 
-    f = open("kb.txt", "w")
+    print("\nKnowledge Base succesfully created!\nNumber of Logical Variables: " + str(var_num) + "\nNumber of Sentences: " + str(sent_num) + "\nMax Literals in each Sentence: " + str(lit_num) + "\n")
+
+    f = open("kb.txt", "w", encoding="utf-8")
     f.write("Number of Logical Variables: " + str(var_num) + " | Number of Sentences: " + str(sent_num) + " | Max Literals in each Sentence: " + str(lit_num) + "\n")
     for s in kb:
         s = str(s).replace("[", "").replace("'", "").replace("]", "").replace(",", "").replace(" ", " ∨ ")
@@ -64,6 +66,9 @@ def GSAT(KB, var_used, maxTries, maxFlips):
 
     for i in range(maxTries):
 
+        if i%10 == 0:
+            print(i)
+
         for lit in var_used:
             var_values[lit] = random.choice([True,False])
 
@@ -77,12 +82,15 @@ def GSAT(KB, var_used, maxTries, maxFlips):
         for j in range(maxFlips):
 
             if all(current_solution):   #na ginei satisfies
+                print("Solution Found!")
                 return var_values
 
             else:
                 key_to_change = findKeyToChange(KB, var_values)
                 var_values[key_to_change] = not(var_values[key_to_change])
                 #print(var_values)
+
+    print("Solution NOT Found!")
 
 
 def findKeyToChange(KB, var_values):
@@ -96,7 +104,6 @@ def findKeyToChange(KB, var_values):
         #print(temp_solution)
         new_costs[key] = len(temp_solution) - sum(temp_solution) #counts Falses
         temp_var_values = copy.deepcopy(var_values)
-    # print(new_costs)
 
     key_to_change = random.choice([k for k,v in new_costs.items() if v == min(new_costs.values())]) #na ginei random
     #print(key_to_change)
@@ -132,6 +139,8 @@ def solve(KB, var_values):
 if __name__ == '__main__':
 
     KB, var_used = constructKB()
+
+    #input("Enter the literal for entailment check (use '-' for negativity): ")
 
     GSAT(KB, var_used, 100, 100)
 
