@@ -103,10 +103,11 @@ def findKeyToChange(KB, var_values):
         temp_solution = solve(KB, temp_var_values)
         #print(temp_solution)
         new_costs[key] = len(temp_solution) - sum(temp_solution) #counts Falses
-        temp_var_values = copy.deepcopy(var_values)
+        temp_var_values[key] = not(temp_var_values[key])
 
     key_to_change = random.choice([k for k,v in new_costs.items() if v == min(new_costs.values())]) #na ginei random
-    #print(key_to_change)
+    # print(temp_var_values)
+    # print(var_values)
     return(key_to_change)
 
 
