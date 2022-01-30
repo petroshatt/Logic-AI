@@ -1,6 +1,7 @@
 #Logic AI - Petros Chatzitoulousis
 import random
 import copy
+from itertools import combinations
 
 
 def constructKB():
@@ -82,7 +83,7 @@ def GSAT(KB, var_used, maxTries, maxFlips):
         for j in range(maxFlips):
 
             if all(current_solution):   #na ginei satisfies
-                print("Solution Found!")
+                print("GSAT Solution Found!")
                 return var_values
 
             else:
@@ -90,7 +91,7 @@ def GSAT(KB, var_used, maxTries, maxFlips):
                 var_values[key_to_change] = not(var_values[key_to_change])
                 #print(var_values)
 
-    print("Solution NOT Found!")
+    print("GSAT Solution NOT Found!")
 
 
 def findKeyToChange(KB, var_values):
@@ -137,13 +138,56 @@ def solve(KB, var_values):
     return(solution)
 
 
+def resolution(KB):
+
+    clauses = copy.deepcopy(KB)
+    new = []
+
+    #while True:
+
+    # clauses_comb = combinations(clauses, 2)
+    #
+    # for i,j in clauses_comb:
+    #     for x in i:
+    #         for y in j:
+    #             if x == findNegative(y):
+    #                 new_i =
+
+
+
+
+
+def findNegative(char):
+
+    if "-" in char:
+        return(char.replace("-", ""))
+    else:
+        return("-" + char)
+
+
+def literal_input(KB):
+
+    entail_check_str = input("\nEnter the literal for entailment check (use '-' for negativity): ")
+    entail_check_str = findNegative(entail_check_str)
+
+    entail_check = []
+    entail_check.append(entail_check_str)
+    KB.append(entail_check)
+
+
+
 if __name__ == '__main__':
 
-    KB, var_used = constructKB()
+    KB_basic, var_used = constructKB()
 
-    #input("Enter the literal for entailment check (use '-' for negativity): ")
+    while True:
+        KB = copy.deepcopy(KB_basic)
+        literal_input(KB)
+        for s in KB:
+            print(s)
+        #GSAT(KB, var_used, 1000, 1000)
+        resolution(KB)
 
-    GSAT(KB, var_used, 100, 100)
 
-    # for s in KB:
-    #     print(s)
+
+
