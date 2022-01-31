@@ -75,16 +75,10 @@ def gsat(KB, var_used, maxTries, maxFlips):
         for lit in var_used:
             var_values[lit] = random.choice([True,False])
 
-        print("Var Values: ", var_values)
-
         current_solution = solve(KB, var_values)
-        #print("CURR SOL: ", current_solution)
         current_cost = len(current_solution) - sum(current_solution)  # counts False
-        # print("Current: ", current_cost)
 
         for j in range(maxFlips):
-
-            print("Current: ", current_cost)
 
             if current_cost == 0:
                 print("Proved entailment using GSAT!")
@@ -93,16 +87,11 @@ def gsat(KB, var_used, maxTries, maxFlips):
             else:
 
                 key_to_change = find_key_to_change(KB, var_values)
-                #print(key_to_change)
                 var_values[key_to_change] = not(var_values[key_to_change])
-                print("New Var Values: ", var_values)
                 new_solution = solve(KB, var_values)
-                #print("NEW SOL: ", new_solution)
                 new_cost = len(new_solution) - sum(new_solution)  # counts False
-                print("New: ", new_cost)
 
                 if current_cost <= new_cost:
-                    #print("OKOKOK")
                     var_values[key_to_change] = not(var_values[key_to_change])
                 else:
                     current_cost = new_cost
@@ -127,7 +116,7 @@ def find_key_to_change(KB, var_values):
     return key_to_change
 
 
-# Lynei
+# Ypologizei to apotelesma kathe orou kai epistrefei mia lysh me ta apotelesmata olwn twn orwn.
 def solve(KB, var_values):
 
     convert_to_true_false = []
@@ -154,6 +143,8 @@ def solve(KB, var_values):
     return solution
 
 
+# H diadikasia ths analyshs efarmozetai se ola ta zevgaria protasewn kai termatizei epityxws
+# otan katlixei se kenh protash dhladh atopo.
 def resolution(KB):
 
     clauses = copy.deepcopy(KB)
@@ -216,6 +207,7 @@ def resolution(KB):
             result.append("New Set of Clauses: " + str(list(clauses)) + "\n")
 
 
+# Epistrefei to antistrofo tou lektikou.
 def find_negative(char):
 
     if "-" in char:
@@ -224,14 +216,19 @@ def find_negative(char):
         return "-" + char
 
 
+# Zhtaei apo ton xrhsth na eisagei lektiko.
 def literal_input(KB):
 
-    entail_check_str = input("\nEnter the literal for entailment check (use '-' for negativity): ")
+    entail_check_str = input("Enter the literal for entailment check (use '-' for negativity): ")
     entail_check_str = find_negative(entail_check_str)
 
     entail_check = []
     entail_check.append(entail_check_str)
     KB.append(entail_check)
+
+    with open('kb.txt', 'a') as f:
+        f.write(entail_check_str)
+        f.close()
 
 
 if __name__ == '__main__':
@@ -245,10 +242,14 @@ if __name__ == '__main__':
         literal_input(KB)
 
         # Prints the knowledge base
-        for s in KB:
-            print(s)
+        # Vgalte tis epomenes dyo seires apo sxolia gia na typwnetai h Vash Gnwshs
+        # for s in KB:
+        #     print(s)
 
-        if not gsat(KB, var_used, 100, 100):
+        # An o GSAT termatisei anepityxws, ekteleitai h Resolution
+        # Mporeite na allaxete tis times maxTries kai maxFlips.
+        # Egw edwsa 100 kai 100 wste na kalyptei kai megala provlimata.
+        if not gsat(KB, var_used, maxTries=100, maxFlips=100):
             resolution(KB)
 
         continue_flag = input("\nWould you like to check another literal? (Y/N): ")
