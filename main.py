@@ -1,18 +1,13 @@
-#Logic AI - Petros Chatzitoulousis
+# Logic AI - Chatzitoulousis Petros, Giannakoulas Giorgos
 import random
 import copy
-import sys
 from itertools import combinations
-
-seed = random.randrange(sys.maxsize)
-rng = random.Random(seed)
-print("Seed is:", seed)
-seed = int(input("Seed: ") or seed)
-random.seed(seed)
 
 f = open("kb.txt", "w", encoding="utf-8")
 
-def constructKB():
+
+# Dhmiourgei tyxaia thn vash gnwshs me vash tis parametrous pou dinei o xrhsths.
+def construct_kb():
 
     kb = []
 
@@ -68,41 +63,56 @@ def constructKB():
     return kb, var_used
 
 
-def GSAT(KB, var_used, maxTries, maxFlips):
+# O algorithmos tou GSAT me orismata ton megisto arithmo flips kai epanekkinhsewn.
+# Oso megalwnei to provlhma toso pio dyskola vriskei lysh kathws kai ayxanetai kai
+# o xronos ekteleshs tou.
+def gsat(KB, var_used, maxTries, maxFlips):
 
     var_values = {}
 
     for i in range(maxTries):
 
-        # if i%10 == 0:
-        #     print(i)
-
         for lit in var_used:
             var_values[lit] = random.choice([True,False])
 
-        # print(var_values)
-        # print(KB)
+        print("Var Values: ", var_values)
 
         current_solution = solve(KB, var_values)
-        # print("original: ", current_solution)
-        current_cost = len(current_solution) - sum(current_solution) #counts Falses
+        #print("CURR SOL: ", current_solution)
+        current_cost = len(current_solution) - sum(current_solution)  # counts False
+        # print("Current: ", current_cost)
 
         for j in range(maxFlips):
 
-            if all(current_solution):
+            print("Current: ", current_cost)
+
+            if current_cost == 0:
                 print("Proved entailment using GSAT!")
                 return True
 
             else:
-                key_to_change = findKeyToChange(KB, var_values)
+
+                key_to_change = find_key_to_change(KB, var_values)
+                #print(key_to_change)
                 var_values[key_to_change] = not(var_values[key_to_change])
-                #print(var_values)
+                print("New Var Values: ", var_values)
+                new_solution = solve(KB, var_values)
+                #print("NEW SOL: ", new_solution)
+                new_cost = len(new_solution) - sum(new_solution)  # counts False
+                print("New: ", new_cost)
+
+                if current_cost <= new_cost:
+                    #print("OKOKOK")
+                    var_values[key_to_change] = not(var_values[key_to_change])
+                else:
+                    current_cost = new_cost
 
     print("Could not prove entailment using GSAT.")
     return False
 
 
-def findKeyToChange(KB, var_values):
+# Epistrefei th metavlhth h opoia tha epiferei thn megalyterh meiwsh twn False.
+def find_key_to_change(KB, var_values):
 
     temp_var_values = copy.deepcopy(var_values)
     new_costs = {}
@@ -110,16 +120,14 @@ def findKeyToChange(KB, var_values):
     for key in var_values:
         temp_var_values[key] = not(temp_var_values[key])
         temp_solution = solve(KB, temp_var_values)
-        #print(temp_solution)
-        new_costs[key] = len(temp_solution) - sum(temp_solution) #counts Falses
+        new_costs[key] = len(temp_solution) - sum(temp_solution)  # counts False
         temp_var_values[key] = not(temp_var_values[key])
 
-    key_to_change = random.choice([k for k,v in new_costs.items() if v == min(new_costs.values())]) #na ginei random
-    # print(temp_var_values)
-    # print(var_values)
-    return(key_to_change)
+    key_to_change = random.choice([k for k,v in new_costs.items() if v == min(new_costs.values())])
+    return key_to_change
 
 
+# Lynei
 def solve(KB, var_values):
 
     convert_to_true_false = []
@@ -143,7 +151,7 @@ def solve(KB, var_values):
         res = any(lists)
         solution.append(res)
 
-    return(solution)
+    return solution
 
 
 def resolution(KB):
@@ -152,29 +160,16 @@ def resolution(KB):
     new = []
     result = []
 
-    runs = 0
     while True:
 
-        #runs += 1
-        #print("Run:", runs)
-
-        # if old_clauses == clauses:
-        #
-        #     print(list(clauses))
-        #     print(list(old_clauses))
-        #     print("Could not prove entailment using Resolution.")
-        #     return False
-
         clauses_comb = combinations(clauses, 2)
-        # old_clauses = copy.deepcopy(clauses)
 
         for i,j in clauses_comb:
             x_found = []
             y_found = []
             for x in i:
                 for y in j:
-                    if x == findNegative(y):
-                        #print(x, y)
+                    if x == find_negative(y):
                         if y not in y_found:
                             y_found.append(y)
                         if x not in x_found:
@@ -218,33 +213,30 @@ def resolution(KB):
         if new:
             for n1 in new:
                 clauses.append(n1)
-            result.append("NEW SET OF CLAUSES" + str(list(clauses)) + "\n")
+            result.append("New Set of Clauses: " + str(list(clauses)) + "\n")
 
 
-
-
-def findNegative(char):
+def find_negative(char):
 
     if "-" in char:
-        return(char.replace("-", ""))
+        return char.replace("-", "")
     else:
-        return("-" + char)
+        return "-" + char
 
 
 def literal_input(KB):
 
     entail_check_str = input("\nEnter the literal for entailment check (use '-' for negativity): ")
-    entail_check_str = findNegative(entail_check_str)
+    entail_check_str = find_negative(entail_check_str)
 
     entail_check = []
     entail_check.append(entail_check_str)
     KB.append(entail_check)
 
 
-
 if __name__ == '__main__':
 
-    KB_basic, var_used = constructKB()
+    KB_basic, var_used = construct_kb()
 
     continue_flag = "Y"
     while continue_flag == "Y":
@@ -253,11 +245,11 @@ if __name__ == '__main__':
         literal_input(KB)
 
         # Prints the knowledge base
-        # for s in KB:
-        #     print(s)
+        for s in KB:
+            print(s)
 
-        #if not GSAT(KB, var_used, 100, 100):
-        resolution(KB)
+        if not gsat(KB, var_used, 100, 100):
+            resolution(KB)
 
         continue_flag = input("\nWould you like to check another literal? (Y/N): ")
         while continue_flag != "Y" and continue_flag != "N":
