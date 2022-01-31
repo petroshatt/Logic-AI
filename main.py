@@ -1,8 +1,16 @@
 #Logic AI - Petros Chatzitoulousis
 import random
 import copy
+import sys
 from itertools import combinations
 
+seed = random.randrange(sys.maxsize)
+rng = random.Random(seed)
+print("Seed is:", seed)
+seed = int(input("Seed: ") or seed)
+random.seed(seed)
+
+f = open("kb.txt", "w", encoding="utf-8")
 
 def constructKB():
 
@@ -49,10 +57,9 @@ def constructKB():
             kb.append(sent)
             sent_counter += 1
 
-    print("\nKnowledge Base successfully created!\nNumber of Logical Variables: " + str(var_num) + "\nNumber of Sentences: " + str(sent_num) + "\nMax Literals in each Sentence: " + str(lit_num) + "\n")
+    print("\nKnowledge Base successfully created!\nNumber of Logical Variables: " + str(var_num) + "\nNumber of Sentences: " + str(sent_num) + "\nMax Literals in each Sentence: " + str(lit_num) + "\n\n")
 
-    f = open("kb.txt", "w", encoding="utf-8")
-    f.write("Number of Logical Variables: " + str(var_num) + " | Number of Sentences: " + str(sent_num) + " | Max Literals in each Sentence: " + str(lit_num) + "\n")
+    f.write("Number of Logical Variables: " + str(var_num) + " | Number of Sentences: " + str(sent_num) + " | Max Literals in each Sentence: " + str(lit_num) + "\n\nKnowledge Base:\n\n")
     for s in kb:
         s = str(s).replace("[", "").replace("'", "").replace("]", "").replace(",", "").replace(" ", " ∨ ")
         f.write(s + "\n")
@@ -143,52 +150,75 @@ def resolution(KB):
 
     clauses = copy.deepcopy(KB)
     new = []
+    result = []
 
-    #new_flag = True
-
+    runs = 0
     while True:
+
+        #runs += 1
+        #print("Run:", runs)
+
+        # if old_clauses == clauses:
+        #
+        #     print(list(clauses))
+        #     print(list(old_clauses))
+        #     print("Could not prove entailment using Resolution.")
+        #     return False
+
         clauses_comb = combinations(clauses, 2)
+        # old_clauses = copy.deepcopy(clauses)
 
         for i,j in clauses_comb:
-            new_x = []
+            x_found = []
+            y_found = []
             for x in i:
-
-                # print(x)
-
-                new_y = []
                 for y in j:
+                    if x == findNegative(y):
+                        #print(x, y)
+                        if y not in y_found:
+                            y_found.append(y)
+                        if x not in x_found:
+                            x_found.append(x)
 
-                    # print(y)
-                    found = True
+            new_x = []
+            for x1 in i:
+                if x1 not in x_found:
+                    new_x.append(x1)
 
-                    if x != findNegative(y):
-                        print(x, y)
-                        found = False
-                        new_y.append(y)
+            new_y = []
+            for y1 in j:
+                if y1 not in y_found:
+                    new_y.append(y1)
 
-                if not found:
-                    new_x.append(x)
-
-            print("Clause 1: ", i)
-            print("Clause 2: ", j)
-            print("New 1: ", new_x)
-            print("New 2: ", new_y, "\n")
+            result.append("Clause 1: " + str(i))
+            result.append("Clause 2: " + str(j))
+            result.append("New Clause 1: " + str(new_x))
+            result.append("New Clause 2: " + str(new_y) + "\n")
 
             if not new_x and not new_y:
-                print("Proved entailment using Resolution!")
+                print("Proved entailment using Resolution!\nCheck the txt file for the results.\n")
+                with open('kb.txt', 'a') as f:
+                    f.write("\n\n--------------------------------------\n\n\nResolution Procedure:\n\n")
+                    for s in result:
+                        f.write(str(s) + "\n")
+                    f.close()
                 return True
-            if (not new_x) and (new_x not in new):
-                new.append(new_x)
-            if (not new_y) and (new_y not in new):
-                new.append(new_y)
 
-        print("New  ", new)
-        if(all(x in clauses for x in new)) or new:
-            print("Could not prove entailment using Resolution.")
+            if new_x:
+                if new_x not in new:
+                    new.append(new_x)
+            if new_y:
+                if new_y not in new:
+                    new.append(new_y)
+
+        if all(x in clauses for x in new):
+            print("Could not prove entailment using Resolution.\nNo results are available at the txt file.\n")
             return False
 
-        if not new:
-            clauses.append(new)
+        if new:
+            for n1 in new:
+                clauses.append(n1)
+            result.append("NEW SET OF CLAUSES" + str(list(clauses)) + "\n")
 
 
 
@@ -218,8 +248,11 @@ if __name__ == '__main__':
 
     continue_flag = "Y"
     while continue_flag == "Y":
+
         KB = copy.deepcopy(KB_basic)
         literal_input(KB)
+
+        # Prints the knowledge base
         # for s in KB:
         #     print(s)
 
@@ -227,6 +260,7 @@ if __name__ == '__main__':
         resolution(KB)
 
         continue_flag = input("\nWould you like to check another literal? (Y/N): ")
-
+        while continue_flag != "Y" and continue_flag != "N":
+            continue_flag = input("Enter an acceptable value! (Y/N): ")
 
 
