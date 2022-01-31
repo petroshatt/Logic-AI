@@ -49,7 +49,7 @@ def constructKB():
             kb.append(sent)
             sent_counter += 1
 
-    print("\nKnowledge Base succesfully created!\nNumber of Logical Variables: " + str(var_num) + "\nNumber of Sentences: " + str(sent_num) + "\nMax Literals in each Sentence: " + str(lit_num) + "\n")
+    print("\nKnowledge Base successfully created!\nNumber of Logical Variables: " + str(var_num) + "\nNumber of Sentences: " + str(sent_num) + "\nMax Literals in each Sentence: " + str(lit_num) + "\n")
 
     f = open("kb.txt", "w", encoding="utf-8")
     f.write("Number of Logical Variables: " + str(var_num) + " | Number of Sentences: " + str(sent_num) + " | Max Literals in each Sentence: " + str(lit_num) + "\n")
@@ -67,8 +67,8 @@ def GSAT(KB, var_used, maxTries, maxFlips):
 
     for i in range(maxTries):
 
-        if i%10 == 0:
-            print(i)
+        # if i%10 == 0:
+        #     print(i)
 
         for lit in var_used:
             var_values[lit] = random.choice([True,False])
@@ -82,16 +82,17 @@ def GSAT(KB, var_used, maxTries, maxFlips):
 
         for j in range(maxFlips):
 
-            if all(current_solution):   #na ginei satisfies
-                print("GSAT Solution Found!")
-                return var_values
+            if all(current_solution):
+                print("Proved entailment using GSAT!")
+                return True
 
             else:
                 key_to_change = findKeyToChange(KB, var_values)
                 var_values[key_to_change] = not(var_values[key_to_change])
                 #print(var_values)
 
-    print("GSAT Solution NOT Found!")
+    print("Could not prove entailment using GSAT.")
+    return False
 
 
 def findKeyToChange(KB, var_values):
@@ -143,16 +144,51 @@ def resolution(KB):
     clauses = copy.deepcopy(KB)
     new = []
 
-    #while True:
+    #new_flag = True
 
-    # clauses_comb = combinations(clauses, 2)
-    #
-    # for i,j in clauses_comb:
-    #     for x in i:
-    #         for y in j:
-    #             if x == findNegative(y):
-    #                 new_i =
+    while True:
+        clauses_comb = combinations(clauses, 2)
 
+        for i,j in clauses_comb:
+            new_x = []
+            for x in i:
+
+                # print(x)
+
+                new_y = []
+                for y in j:
+
+                    # print(y)
+                    found = True
+
+                    if x != findNegative(y):
+                        print(x, y)
+                        found = False
+                        new_y.append(y)
+
+                if not found:
+                    new_x.append(x)
+
+            print("Clause 1: ", i)
+            print("Clause 2: ", j)
+            print("New 1: ", new_x)
+            print("New 2: ", new_y, "\n")
+
+            if not new_x and not new_y:
+                print("Proved entailment using Resolution!")
+                return True
+            if (not new_x) and (new_x not in new):
+                new.append(new_x)
+            if (not new_y) and (new_y not in new):
+                new.append(new_y)
+
+        print("New  ", new)
+        if(all(x in clauses for x in new)) or new:
+            print("Could not prove entailment using Resolution.")
+            return False
+
+        if not new:
+            clauses.append(new)
 
 
 
@@ -180,14 +216,17 @@ if __name__ == '__main__':
 
     KB_basic, var_used = constructKB()
 
-    while True:
+    continue_flag = "Y"
+    while continue_flag == "Y":
         KB = copy.deepcopy(KB_basic)
         literal_input(KB)
-        for s in KB:
-            print(s)
-        #GSAT(KB, var_used, 1000, 1000)
+        # for s in KB:
+        #     print(s)
+
+        #if not GSAT(KB, var_used, 100, 100):
         resolution(KB)
 
+        continue_flag = input("\nWould you like to check another literal? (Y/N): ")
 
 
 
